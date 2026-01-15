@@ -3,9 +3,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { Message } from '../types.ts';
 
-const PulseAI: React.FC = () => {
+interface PulseAIProps {
+  initialSubject: string;
+}
+
+const PulseAI: React.FC<PulseAIProps> = ({ initialSubject }) => {
   const [messages, setMessages] = useState<Message[]>([
-    { id: '1', role: 'model', content: "Dr. Aspirant, I'm Pulse AI. I am now grounded with real-time Google Search to provide the latest 2024-25 medical guidelines. Ask me anything.", timestamp: Date.now() }
+    { id: '1', role: 'model', content: `Dr. Aspirant, Pulse AI is online. Focused Subject: ${initialSubject}. Ask me about clinical guidelines, differential diagnosis, or pathophysiology.`, timestamp: Date.now() }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -28,15 +32,14 @@ const PulseAI: React.FC = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-3-flash-preview',
         contents: [...messages, userMessage].map(m => ({ role: m.role, parts: [{ text: m.content }] })),
         config: {
-          systemInstruction: "You are Pulse AI. Use the search tool to verify the LATEST medical guidelines (GEMA, GOLD, GINA, AHA/ACC) for 2024-2025. Be precise, cite sources, and prioritize high-yield exam points.",
+          systemInstruction: `You are Pulse AI, a high-yield medical consultant. Focus: ${initialSubject}. Use search for latest guidelines. Be concise and prioritize exam-relevant information.`,
           tools: [{ googleSearch: {} }]
         }
       });
 
-      // Extract Grounding sources
       const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
       if (groundingChunks) {
         const extractedSources = groundingChunks
@@ -49,11 +52,17 @@ const PulseAI: React.FC = () => {
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'model',
-        content: response.text || "Diagnostic error. Please rephrase.",
+        content: response.text || "I apologize, Dr. Aspirant. My diagnostic core encountered a temporary synchronization error.",
         timestamp: Date.now()
       }]);
     } catch (error) {
-      console.error(error);
+      console.error("Pulse AI Core Error:", error);
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'model',
+        content: "CRITICAL ERROR: Unable to reach the clinical database. Please check your environment connection (API Key settings).",
+        timestamp: Date.now()
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -61,9 +70,9 @@ const PulseAI: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full max-w-5xl mx-auto p-6 lg:p-10">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-8 pr-4 custom-scrollbar">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-8 pr-4 custom-scrollbar pb-6">
         {messages.map((m) => (
-          <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div key={m.id} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
             <div className={`max-w-[85%] p-6 rounded-[2rem] ${
               m.role === 'user' 
                 ? 'bg-cyan-600 text-white rounded-tr-none shadow-xl shadow-cyan-900/20' 
@@ -71,21 +80,22 @@ const PulseAI: React.FC = () => {
             }`}>
               {m.role === 'model' && (
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-5 h-5 rounded bg-cyan-500/20 flex items-center justify-center">
-                    <i className="fas fa-brain text-[10px] text-cyan-400"></i>
+                  <div className="w-5 h-5 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                    <i className="fas fa-microscope text-[10px] text-cyan-400"></i>
                   </div>
-                  <span className="text-[10px] font-bold tracking-widest text-cyan-400 uppercase">Grounded Pulse AI</span>
+                  <span className="text-[10px] font-black tracking-widest text-cyan-400 uppercase">Diagnostic Brain</span>
                 </div>
               )}
               <div className="text-[15px] leading-relaxed whitespace-pre-wrap font-medium">{m.content}</div>
               
-              {m.role === 'model' && sources.length > 0 && messages[messages.length-1].id === m.id && (
-                <div className="mt-4 pt-4 border-t border-white/10">
-                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Evidence Sources</p>
+              {m.role === 'model' && sources.length > 0 && (
+                <div className="mt-5 pt-4 border-t border-white/5 space-y-3">
+                   <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Evidence Grounding</p>
                    <div className="flex flex-wrap gap-2">
                      {sources.map((s, i) => (
-                       <a key={i} href={s.uri} target="_blank" className="px-3 py-1 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] font-bold text-cyan-400 transition-all border border-white/5 truncate max-w-[150px]">
-                         <i className="fas fa-link mr-1 opacity-50"></i> {s.title || 'Source'}
+                       <a key={i} href={s.uri} target="_blank" className="px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 rounded-xl text-[10px] font-bold text-cyan-400 transition-all border border-cyan-500/10 flex items-center gap-2">
+                         <i className="fas fa-file-medical text-[8px] opacity-70"></i> 
+                         <span className="truncate max-w-[120px]">{s.title || 'Source'}</span>
                        </a>
                      ))}
                    </div>
@@ -97,33 +107,33 @@ const PulseAI: React.FC = () => {
         {isLoading && (
           <div className="flex justify-start">
              <div className="glass px-6 py-4 rounded-[2rem] rounded-tl-none flex items-center gap-4">
-               <div className="flex gap-1">
+               <div className="flex gap-1.5">
                  <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
                  <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                  <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-bounce"></div>
                </div>
-               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Searching Medical Databases...</span>
+               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Querying PubMed & Medscape...</span>
              </div>
           </div>
         )}
       </div>
 
-      <div className="mt-8">
-        <div className="glass p-3 rounded-[2rem] flex items-center gap-3 shadow-2xl border-white/5">
+      <div className="mt-4">
+        <div className="glass p-2 rounded-[2.5rem] flex items-center gap-2 shadow-2xl border-white/10 ring-4 ring-cyan-500/5">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Ask about 2024 Asthma guidelines or a clinical case..."
-            className="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 placeholder-slate-600 px-5 text-sm font-medium"
+            placeholder="Search symptoms or treatment guidelines..."
+            className="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 placeholder-slate-600 px-6 text-sm font-medium"
           />
           <button
             onClick={handleSend}
             disabled={isLoading || !input.trim()}
-            className="w-12 h-12 rounded-2xl bg-cyan-600 hover:bg-cyan-500 transition-all flex items-center justify-center disabled:opacity-30"
+            className="w-12 h-12 rounded-[1.5rem] bg-cyan-600 hover:bg-cyan-500 transition-all flex items-center justify-center disabled:opacity-30 shadow-lg shadow-cyan-900/40"
           >
-            <i className="fas fa-paper-plane text-white text-xs"></i>
+            <i className="fas fa-location-arrow text-white text-xs"></i>
           </button>
         </div>
       </div>
