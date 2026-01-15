@@ -1,0 +1,8 @@
+{
+  "name": "MEDSAVIOUR",
+  "description": "Next-Generation AI Medical Education Platform for MBBS, NEET-PG, and INI-CET.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
