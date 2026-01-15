@@ -28,21 +28,30 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
 
-    @keyframes waveform {
-      0%, 100% { height: 20%; opacity: 0.5; }
-      50% { height: 100%; opacity: 1; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.5; }
     }
-    .animate-waveform {
-      animation: waveform 0.8s ease-in-out infinite;
+    .animate-pulse-ring {
+      animation: pulse-ring 2s ease-in-out infinite;
     }
-    .pulse-glow {
-      box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+    
+    @keyframes ekg {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .ekg-line::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, #0ea5e9, transparent);
+      animation: ekg 1.5s linear infinite;
     }
   </style>
   <script>
-    // Robust shim for production environments
-    window.process = { env: { API_KEY: "" } };
-    // This will be overridden by the platform if available
+    // Ensure process.env exists without forcing empty values
+    window.process = window.process || { env: {} };
   </script>
 <script type="importmap">
 {

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { GeneratedVideo } from '../types.ts';
@@ -9,8 +10,8 @@ declare global {
   }
 
   interface Window {
-    // Removed 'readonly' modifier to match existing declarations of aistudio on the window object
-    aistudio: AIStudio;
+    // Fix: Added 'readonly' modifier to match existing environment declarations of aistudio on the window object
+    readonly aistudio: AIStudio;
   }
 }
 
