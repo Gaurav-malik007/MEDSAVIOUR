@@ -4,15 +4,15 @@ import { GoogleGenAI } from '@google/genai';
 import { GeneratedVideo } from '../types';
 
 declare global {
-  // Fixed the global window declaration to match the expected AIStudio type and avoid modifier mismatches
+  // Define the AIStudio interface for selecting API keys
   interface AIStudio {
     hasSelectedApiKey: () => Promise<boolean>;
     openSelectKey: () => Promise<void>;
   }
 
   interface Window {
-    // Removed readonly modifier to ensure compatibility with other declarations of Window.aistudio and fix modifier mismatch error
-    aistudio: AIStudio;
+    // Restore readonly modifier to match existing global declarations and fix modifier mismatch error
+    readonly aistudio: AIStudio;
   }
 }
 

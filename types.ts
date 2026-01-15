@@ -1,9 +1,11 @@
 
 export enum ViewType {
+  DASHBOARD = 'DASHBOARD',
   PULSE_AI = 'PULSE_AI',
   MEDIVIS = 'MEDIVIS',
   VAULT = 'VAULT',
-  NEUROCARDS = 'NEUROCARDS'
+  NEUROCARDS = 'NEUROCARDS',
+  LIVE_CONSULTANT = 'LIVE_CONSULTANT'
 }
 
 export interface Message {
@@ -22,7 +24,6 @@ export interface Question {
   explanation: string;
 }
 
-// Added GeneratedImage interface to support image generation history
 export interface GeneratedImage {
   id: string;
   url: string;
@@ -30,7 +31,6 @@ export interface GeneratedImage {
   timestamp: number;
 }
 
-// Added GeneratedVideo interface to support video generation history
 export interface GeneratedVideo {
   id: string;
   url: string;

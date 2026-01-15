@@ -1,18 +1,22 @@
 
 import React, { useState } from 'react';
 import { ViewType } from './types';
+import Dashboard from './views/Dashboard';
 import PulseAI from './views/PulseAI';
 import MediVis from './views/MediVis';
 import Vault from './views/Vault';
 import NeuroCards from './views/NeuroCards';
+import ClinicalLive from './views/ClinicalLive';
 
 const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<ViewType>(ViewType.PULSE_AI);
+  const [activeView, setActiveView] = useState<ViewType>(ViewType.DASHBOARD);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navItems = [
+    { id: ViewType.DASHBOARD, icon: 'fa-house-medical', label: 'Dashboard', desc: 'Study Hub', color: 'text-white' },
     { id: ViewType.PULSE_AI, icon: 'fa-brain-circuit', label: 'Pulse AI', desc: 'Case Solver', color: 'text-cyan-400' },
-    { id: ViewType.MEDIVIS, icon: 'fa-microscope', label: 'MediVis', desc: 'Visual Learner', color: 'text-emerald-400' },
+    { id: ViewType.LIVE_CONSULTANT, icon: 'fa-phone-volume', label: 'Live Mentor', desc: 'Voice Rounds', color: 'text-emerald-400' },
+    { id: ViewType.MEDIVIS, icon: 'fa-microscope', label: 'MediVis', desc: 'Visual Learner', color: 'text-purple-400' },
     { id: ViewType.VAULT, icon: 'fa-book-medical', label: 'The Vault', desc: 'QBank 2.0', color: 'text-blue-400' },
     { id: ViewType.NEUROCARDS, icon: 'fa-bolt-lightning', label: 'NeuroCards', desc: 'Active Recall', color: 'text-amber-400' },
   ];
@@ -33,7 +37,7 @@ const App: React.FC = () => {
           )}
         </div>
 
-        <nav className="flex-1 px-4 space-y-3">
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -95,16 +99,18 @@ const App: React.FC = () => {
              </div>
              <div className="h-10 w-[1px] bg-white/5"></div>
              <button className="text-xs font-bold bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 transition-all">
-                Doubt History
+                Sync Progress
              </button>
           </div>
         </header>
 
         <div className="flex-1 relative overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-950/20 via-transparent to-transparent">
+          {activeView === ViewType.DASHBOARD && <Dashboard />}
           {activeView === ViewType.PULSE_AI && <PulseAI />}
           {activeView === ViewType.MEDIVIS && <MediVis />}
           {activeView === ViewType.VAULT && <Vault />}
           {activeView === ViewType.NEUROCARDS && <NeuroCards />}
+          {activeView === ViewType.LIVE_CONSULTANT && <ClinicalLive />}
         </div>
       </main>
     </div>
