@@ -9,8 +9,8 @@ declare global {
   }
 
   interface Window {
-    // Restored 'readonly' modifier to match identical modifiers requirement for global interface merging.
-    readonly aistudio: AIStudio;
+    // Removed 'readonly' modifier to match existing declarations of aistudio on the window object
+    aistudio: AIStudio;
   }
 }
 
