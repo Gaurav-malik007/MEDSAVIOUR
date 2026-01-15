@@ -10,8 +10,8 @@ declare global {
   }
 
   interface Window {
-    // Fixed: Removed 'readonly' modifier to ensure consistency across potential multiple declarations of the 'aistudio' property on the Window interface.
-    aistudio: AIStudio;
+    // Restored 'readonly' modifier to match the global declaration of the aistudio object in the environment.
+    readonly aistudio: AIStudio;
   }
 }
 
@@ -47,7 +47,7 @@ const VideoView: React.FC = () => {
     setStatusMessage('Initiating video sequence...');
 
     try {
-      // Create a new GoogleGenAI instance right before making an API call to ensure it uses the latest API key.
+      // Create a new GoogleGenAI instance right before making an API call to ensure it always uses the most up-to-date API key from the dialog.
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
@@ -68,6 +68,7 @@ const VideoView: React.FC = () => {
 
       const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
       if (downloadLink) {
+        // The response.body contains the MP4 bytes. You must append an API key when fetching from the download link.
         const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
         const videoBlob = await response.blob();
         const videoUrl = URL.createObjectURL(videoBlob);
@@ -82,6 +83,7 @@ const VideoView: React.FC = () => {
       }
     } catch (error: any) {
       console.error(error);
+      // Reset the key selection state if the request fails with "Requested entity was not found."
       if (error.message?.includes('Requested entity was not found')) {
         setIsKeySelected(false);
         alert("API Key session expired. Please re-select your key.");

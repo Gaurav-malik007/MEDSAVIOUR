@@ -8,6 +8,24 @@ export enum ViewType {
   LIVE_CONSULTANT = 'LIVE_CONSULTANT'
 }
 
+export enum Subject {
+  ALL = 'All Subjects',
+  ANATOMY = 'Anatomy',
+  PHYSIOLOGY = 'Physiology',
+  BIOCHEMISTRY = 'Biochemistry',
+  PATHOLOGY = 'Pathology',
+  PHARMACOLOGY = 'Pharmacology',
+  MICROBIOLOGY = 'Microbiology',
+  FORENSIC = 'Forensic Medicine',
+  PSM = 'Community Medicine',
+  ENT = 'ENT',
+  OPHTHALMOLOGY = 'Ophthalmology',
+  PEDIATRICS = 'Pediatrics',
+  MEDICINE = 'General Medicine',
+  SURGERY = 'General Surgery',
+  OBG = 'Obstetrics & Gynae'
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'model';
@@ -16,12 +34,19 @@ export interface Message {
 }
 
 export interface Question {
-  id: string;
   subject: string;
   text: string;
   options: string[];
   correctIndex: number;
   explanation: string;
+  difficulty: 'High-Yield' | 'Standard' | 'Elite';
+}
+
+export interface Flashcard {
+  front: string;
+  back: string;
+  subject: string;
+  highYieldPoint: string;
 }
 
 export interface GeneratedImage {
@@ -31,6 +56,7 @@ export interface GeneratedImage {
   timestamp: number;
 }
 
+// Added GeneratedVideo interface to support the VideoView component
 export interface GeneratedVideo {
   id: string;
   url: string;
