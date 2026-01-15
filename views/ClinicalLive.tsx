@@ -8,10 +8,10 @@ const ClinicalLive: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const [transcription, setTranscription] = useState<string[]>([]);
   
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const outputContextRef = useRef<AudioContext | null>(null);
+  const audioContextRef = useRef<any>(null);
+  const outputContextRef = useRef<any>(null);
   const nextStartTimeRef = useRef(0);
-  const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
+  const sourcesRef = useRef<Set<any>>(new Set());
   const sessionPromiseRef = useRef<Promise<any> | null>(null);
   const transcriptionRef = useRef<string[]>([]);
 
@@ -20,8 +20,9 @@ const ClinicalLive: React.FC = () => {
     try {
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-      outputContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+      const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext;
+      audioContextRef.current = new AudioCtx({ sampleRate: 16000 });
+      outputContextRef.current = new AudioCtx({ sampleRate: 24000 });
       
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -31,9 +32,9 @@ const ClinicalLive: React.FC = () => {
           onopen: () => {
             setIsActive(true);
             setIsConnecting(false);
-            const source = audioContextRef.current!.createMediaStreamSource(stream);
-            const scriptProcessor = audioContextRef.current!.createScriptProcessor(4096, 1, 1);
-            scriptProcessor.onaudioprocess = (e) => {
+            const source = audioContextRef.current.createMediaStreamSource(stream);
+            const scriptProcessor = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+            scriptProcessor.onaudioprocess = (e: any) => {
               const inputData = e.inputBuffer.getChannelData(0);
               const pcmBlob = createBlob(inputData);
               sessionPromise.then((session) => {
@@ -41,7 +42,7 @@ const ClinicalLive: React.FC = () => {
               });
             };
             source.connect(scriptProcessor);
-            scriptProcessor.connect(audioContextRef.current!.destination);
+            scriptProcessor.connect(audioContextRef.current.destination);
           },
           onmessage: async (message) => {
             if (message.serverContent?.outputTranscription) {
@@ -67,7 +68,7 @@ const ClinicalLive: React.FC = () => {
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Charon' } } },
-          systemInstruction: 'You are Senior Consultant Zephyr. Conduct a "Ward Round" style interaction. Present a clinical finding and ask the student for the likely diagnosis or next diagnostic step. Be professional, slightly challenging, but encouraging. Use Socratic questioning.',
+          systemInstruction: 'You are Senior Consultant Zephyr. Conduct a Ward Round style interaction for an MBBS student. Be professional and challenging.',
           outputAudioTranscription: {},
           inputAudioTranscription: {},
         }
@@ -90,45 +91,36 @@ const ClinicalLive: React.FC = () => {
   return (
     <div className="h-full flex flex-col p-8 lg:p-12 max-w-4xl mx-auto space-y-12">
       <div className="flex-1 flex flex-col items-center justify-center space-y-12 text-center">
-        <div className="relative">
-          <div className={`w-64 h-64 rounded-full flex items-center justify-center transition-all duration-700 bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 border border-white/5 ${
-            isActive ? 'scale-110 shadow-[0_0_100px_rgba(16,185,129,0.2)] ring-4 ring-emerald-500/20' : ''
+        <div className={`w-64 h-64 rounded-full flex items-center justify-center transition-all duration-700 bg-emerald-500/5 border border-white/5 ${
+            isActive ? 'scale-110 shadow-[0_0_80px_rgba(16,185,129,0.1)] ring-2 ring-emerald-500/20' : ''
           }`}>
              {isActive ? (
-               <div className="flex items-end gap-2 h-16">
-                  {[...Array(12)].map((_, i) => (
-                    <div key={i} className="w-1.5 bg-emerald-400 rounded-full animate-waveform" style={{ animationDelay: `${i * 0.05}s`, height: `${20 + Math.random() * 80}%` }}></div>
+               <div className="flex items-end gap-1.5 h-12">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="w-1 bg-emerald-400 rounded-full animate-pulse" style={{ height: `${30 + Math.random() * 70}%` }}></div>
                   ))}
                </div>
-             ) : (
-               <div className="flex flex-col items-center gap-2">
-                 <i className="fas fa-user-md text-6xl text-slate-700"></i>
-                 <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Consultant Offline</span>
-               </div>
-             )}
-          </div>
+             ) : <i className="fas fa-user-md text-6xl text-slate-800"></i>}
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-4xl font-black italic">Senior Consultant <span className="text-emerald-400">Zephyr</span></h2>
-          <p className="text-slate-500 max-w-md mx-auto leading-relaxed font-medium">
-            Practice bedside clinical reasoning. Talk through your diagnostic steps for a complex presentation.
-          </p>
+          <h2 className="text-3xl font-black italic">Consultant <span className="text-emerald-400">Zephyr</span></h2>
+          <p className="text-slate-500 text-sm max-w-xs mx-auto">Voice-active clinical reasoning rounds. Practice your case presentations live.</p>
         </div>
 
         <button
           onClick={isActive ? stopSession : startSession}
           disabled={isConnecting}
-          className={`px-12 py-5 rounded-3xl font-bold text-xs uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center gap-4 ${
-            isActive ? 'bg-rose-600 text-white shadow-rose-900/40 hover:scale-105' : 'bg-emerald-600 text-white shadow-emerald-900/40 hover:scale-105'
+          className={`px-12 py-5 rounded-3xl font-black text-[10px] uppercase tracking-widest shadow-2xl transition-all ${
+            isActive ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
           }`}
         >
-          {isConnecting ? <i className="fas fa-spinner fa-spin"></i> : isActive ? <><i className="fas fa-phone-slash"></i> End Rounds</> : <><i className="fas fa-phone"></i> Start Clinical Rounds</>}
+          {isConnecting ? 'Connecting...' : isActive ? 'End Rounds' : 'Start Rounds'}
         </button>
       </div>
 
-      <div className="glass rounded-[2rem] p-8 h-40 overflow-y-auto border-white/5 font-mono text-[11px] text-slate-400 italic custom-scrollbar">
-        {transcription.length === 0 ? "// Diagnostic transcript will sync here..." : transcription.slice(-3).map((t, i) => <div key={i} className="mb-2 border-l-2 border-emerald-500/30 pl-4">{t}</div>)}
+      <div className="glass rounded-[2rem] p-6 h-32 overflow-y-auto border-white/5 font-mono text-[10px] text-slate-500 italic">
+        {transcription.length === 0 ? "// Waiting for voice interaction..." : transcription.slice(-2).map((t, i) => <div key={i} className="mb-1">{t}</div>)}
       </div>
     </div>
   );
