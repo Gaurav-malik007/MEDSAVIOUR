@@ -1,18 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { GeneratedVideo } from '../types';
+import { GeneratedVideo } from '../types.ts';
 
 declare global {
-  // Define the AIStudio interface for selecting API keys
   interface AIStudio {
     hasSelectedApiKey: () => Promise<boolean>;
     openSelectKey: () => Promise<void>;
   }
 
   interface Window {
-    // Restore readonly modifier to match existing global declarations and fix modifier mismatch error
-    readonly aistudio: AIStudio;
+    // Fixed: Removed 'readonly' modifier to ensure consistency across potential multiple declarations of the 'aistudio' property on the Window interface.
+    aistudio: AIStudio;
   }
 }
 
@@ -37,7 +36,7 @@ const VideoView: React.FC = () => {
   const handleSelectKey = async () => {
     if (window.aistudio) {
       await window.aistudio.openSelectKey();
-      setIsKeySelected(true); // Proceed as per instructions (assume success after triggering dialog)
+      setIsKeySelected(true);
     }
   };
 
@@ -48,7 +47,7 @@ const VideoView: React.FC = () => {
     setStatusMessage('Initiating video sequence...');
 
     try {
-      // Create a new GoogleGenAI instance right before making an API call to ensure it always uses the most up-to-date API key
+      // Create a new GoogleGenAI instance right before making an API call to ensure it uses the latest API key.
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
@@ -69,7 +68,6 @@ const VideoView: React.FC = () => {
 
       const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
       if (downloadLink) {
-        // Appending the API key when fetching from the download link as required by the Veo video generation process
         const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
         const videoBlob = await response.blob();
         const videoUrl = URL.createObjectURL(videoBlob);
@@ -84,7 +82,6 @@ const VideoView: React.FC = () => {
       }
     } catch (error: any) {
       console.error(error);
-      // If the request fails with "Requested entity was not found.", reset key selection state per instructions
       if (error.message?.includes('Requested entity was not found')) {
         setIsKeySelected(false);
         alert("API Key session expired. Please re-select your key.");

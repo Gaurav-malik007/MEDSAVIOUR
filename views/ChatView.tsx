@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { Message } from '../types';
+import { Message } from '../types.ts';
 
 const ChatView: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -32,7 +32,6 @@ const ChatView: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Always create a fresh instance with process.env.API_KEY directly before use
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',

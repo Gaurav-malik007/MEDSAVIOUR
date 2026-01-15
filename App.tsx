@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
-import { ViewType } from './types';
-import Dashboard from './views/Dashboard';
-import PulseAI from './views/PulseAI';
-import MediVis from './views/MediVis';
-import Vault from './views/Vault';
-import NeuroCards from './views/NeuroCards';
-import ClinicalLive from './views/ClinicalLive';
+import { ViewType } from './types.ts';
+import Dashboard from './views/Dashboard.tsx';
+import PulseAI from './views/PulseAI.tsx';
+import MediVis from './views/MediVis.tsx';
+import Vault from './views/Vault.tsx';
+import NeuroCards from './views/NeuroCards.tsx';
+import ClinicalLive from './views/ClinicalLive.tsx';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<ViewType>(ViewType.DASHBOARD);

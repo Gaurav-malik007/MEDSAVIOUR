@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Modality } from '@google/genai';
-import { createBlob, decode, decodeAudioData } from '../utils/audio-utils';
+import { createBlob, decode, decodeAudioData } from '../utils/audio-utils.ts';
 
 const ClinicalLive: React.FC = () => {
   const [isActive, setIsActive] = useState(false);

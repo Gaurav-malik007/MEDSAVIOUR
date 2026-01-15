@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { GoogleGenAI } from '@google/genai';
-import { GeneratedImage } from '../types';
+import { GeneratedImage } from '../types.ts';
 
 const ImageView: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -14,7 +14,6 @@ const ImageView: React.FC = () => {
 
     setIsGenerating(true);
     try {
-      // Use process.env.API_KEY directly as required by the coding guidelines
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
@@ -55,7 +54,6 @@ const ImageView: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col p-4 lg:p-8 max-w-6xl mx-auto space-y-8">
-      {/* Input Section */}
       <div className="glass p-6 rounded-3xl space-y-4 shadow-2xl border-white/5">
         <div className="flex flex-col gap-4">
           <textarea
@@ -104,7 +102,6 @@ const ImageView: React.FC = () => {
         </div>
       </div>
 
-      {/* Gallery Section */}
       <div className="flex-1 overflow-y-auto">
         {images.length === 0 && !isGenerating ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-600 opacity-40 space-y-4 py-20">
