@@ -10,7 +10,7 @@ declare global {
   }
 
   interface Window {
-    // Fix: Added 'readonly' modifier to match existing environment declarations of aistudio on the window object
+    // Restore 'readonly' modifier to match global environment declarations and avoid modifier mismatch error
     readonly aistudio: AIStudio;
   }
 }
